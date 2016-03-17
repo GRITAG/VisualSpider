@@ -10,6 +10,9 @@ namespace VisualSpider
     {
         static void Main(string[] args)
         {
+            Console.Title = "Visual Spider";
+
+            Console.ReadKey();
         }
     }
 }

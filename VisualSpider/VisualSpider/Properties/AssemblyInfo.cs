@@ -5,10 +5,10 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("VisualSpider")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Visual Spider")]
+[assembly: AssemblyDescription("A Scriptable Site Crawler")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Swarm Automation Group")]
 [assembly: AssemblyProduct("VisualSpider")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
