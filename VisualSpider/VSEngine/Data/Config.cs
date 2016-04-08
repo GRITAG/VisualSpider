@@ -13,7 +13,8 @@ namespace VSEngine.Data
 
         public void GenerateConfig ()
         {
-            
+            StartURL = "http://www.google.com";
+            MaxThreads = 4;
         }
     }
 }

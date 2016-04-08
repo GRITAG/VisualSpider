@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VSEngine.Data;
 using VSEngine.Integration;
 
 namespace VSEngine
@@ -12,6 +13,8 @@ namespace VSEngine
     /// </summary>
     public class Engine
     {
+        Config Configs = new Config();
+
         Init Initilization = new Init();
         NavLoop NavigationLoop = new NavLoop();
         PostReporting CleanupAndReporting = new PostReporting();
@@ -20,9 +23,11 @@ namespace VSEngine
 
         public Engine()
         {
-            Initilization.LoadConfigs();
-            Initilization.CreateSQLiteDB();
-            Initilization.FirstTimeURLStore();
+            Configs.GenerateConfig();
+            Initilization.LoadConfigs(Configs);
+            Initilization.CreateDB(Database);
+            Initilization.FirstTimeURLStore(Configs, Database);
+            NavigationLoop.Loop(Database, Configs);
         }
     }
 }

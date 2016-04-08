@@ -74,7 +74,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\Config.cs" />
-    <Compile Include="Data\CrawlURL.cs" />
+    <Compile Include="Data\NavUnit.cs" />
+    <Compile Include="Data\ResolvedNavUnit.cs" />
+    <Compile Include="DBAcess.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="Init.cs" />
     <Compile Include="Integration\DBAccess.cs" />
