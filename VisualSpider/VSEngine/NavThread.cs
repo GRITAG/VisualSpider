@@ -19,6 +19,7 @@ namespace VSEngine
         // take screen shot
         NavUnit UnitToPreform { get; set; }
         public ResolvedNavUnit UnitToPassBack { get; set; }
+        public Config configRef { get; set; }
 
         public NavThread(NavUnit unit)
         {

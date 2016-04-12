@@ -37,6 +37,7 @@ namespace VSEngine
                 foreach(NavUnit currentUnit in queuedUnits)
                 {
                     NavThread tempNavThread = new NavThread(currentUnit);
+                    tempNavThread.configRef = cfg;
                     Thread tempThread = new Thread(tempNavThread.Navigate);
                     tempThread.Start();
 
@@ -58,8 +59,14 @@ namespace VSEngine
 
                 foreach(NavThread currentNavTh in navThreads)
                 {
-                    db.StoreResolvedNavUnit(currentNavTh.UnitToPassBack);
+                    db.StoreResolvedNavUnit(currentNavTh.UnitToPassBack, cfg);
                 }
+
+                if (cfg.MaxLinkCount > 0)
+                {
+                    if (db.ResolvedNavUnitCount() > cfg.MaxLinkCount) WorkToDo = false;
+                }
+
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +9,11 @@ using VSEngine.Integration;
 
 namespace VSEngine
 {
+    public enum EngineState
+    {
+        Main, GenerateConfig, ExportImages, ExportResults
+    }
+
     /// <summary>
     /// The engine that runs the Visual Spider main loop
     /// </summary>
@@ -21,13 +27,37 @@ namespace VSEngine
 
         DBAccess Database = new DBAccess();
 
-        public Engine()
+        public Engine(EngineState engineState)
         {
-            Configs.GenerateConfig();
+            switch(engineState)
+            {
+                case EngineState.Main:
+                    MainLoop();
+                    break;
+                case EngineState.GenerateConfig:
+                    Configs.GenerateConfig();
+                    break;
+            }
+        }
+
+        public void MainLoop()
+        {
+            if (!File.Exists("vs.cfg"))
+            {
+                Configs.GenerateConfig();
+                Configs.SaveConfig();
+            }
+            else
+            {
+                Configs.LoadConfig();
+            }
+
             Initilization.LoadConfigs(Configs);
             Initilization.CreateDB(Database);
             Initilization.FirstTimeURLStore(Configs, Database);
             NavigationLoop.Loop(Database, Configs);
+            CleanupAndReporting.WriteIamges(Database.GetRawImages());
+
         }
     }
 }

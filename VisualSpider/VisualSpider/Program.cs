@@ -14,9 +14,28 @@ namespace VisualSpider
         static void Main(string[] args)
         {
             Console.Title = "Visual Spider";
-            GOGO = new Engine();
 
-            Console.ReadKey();
+            if (args.Length < 1)
+            {
+                GOGO = new Engine(EngineState.Main);
+            }
+            else
+            {
+                foreach(string currentArg in args)
+                {
+                    if(currentArg.ToLower().Contains("/g"))
+                    {
+                        GOGO = new Engine(EngineState.GenerateConfig);
+                    }
+
+                    if(currentArg.ToLower().Contains("/x"))
+                    {
+                        // exit
+                    }
+                }
+            }
+
+            //Console.ReadKey();
         }
     }
 }

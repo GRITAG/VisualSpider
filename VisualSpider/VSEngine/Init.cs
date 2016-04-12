@@ -21,6 +21,12 @@ namespace VSEngine
         public void CreateDB(DBAccess db) { db.CreateDB(); }
         public void FirstTimeURLStore(Config cfg, DBAccess db)
         {
+            if (cfg.SingleDomain)
+            {
+                cfg.RootDoamin = cfg.StartURL.Split(new char[] { '/' })[2];
+                if (cfg.RootDoamin.Contains("www.")) cfg.RootDoamin = cfg.RootDoamin.Replace("www.", "");
+            }
+
             // this is only done before had for the first url
             NavUnit firstNav = new NavUnit(cfg.StartURL);
             db.StoreNavUnit(firstNav);
@@ -33,10 +39,7 @@ namespace VSEngine
                 Thread.Sleep(1000);
             }
 
-            db.StoreResolvedNavUnit(thread.UnitToPassBack);
-
-            // temp code
-            List<NavUnit> temp = db.RetriveUnitSet(4);
+            db.StoreResolvedNavUnit(thread.UnitToPassBack, cfg);
 
             return;
         }

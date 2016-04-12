@@ -51,7 +51,7 @@ namespace VSEngine.Integration
                 if (string.IsNullOrEmpty(unit.ScriptRef)) unit.ScriptRef = "none";
 
                 SQLiteCommand storeUnit = new SQLiteCommand("insert into navunit (id, address, addresshash, timefound, navtype, scriptref) " + "values ('"+unit.ID.ToString() + 
-                    "', '" + unit.Address.ToString() + "', '" + unit.AddressHash + "', '" + unit.TimeFound.ToString() + "', '" + unit.Type.ToString() +"', '" + unit.ScriptRef + 
+                    "', \"" + unit.Address.ToString() + "\", '" + unit.AddressHash + "', '" + unit.TimeFound.ToString() + "', '" + unit.Type.ToString() +"', '" + unit.ScriptRef + 
                     "')", Connection);
                 int rows = storeUnit.ExecuteNonQuery();
 
@@ -61,7 +61,7 @@ namespace VSEngine.Integration
             return string.Empty;
         }
 
-        public void StoreResolvedNavUnit(ResolvedNavUnit unit)
+        public void StoreResolvedNavUnit(ResolvedNavUnit unit, Config cfg)
         {
             SQLiteCommand removeNavUnitRec = new SQLiteCommand("delete from navunit where address = '" + unit.Address + "'", Connection);
             removeNavUnitRec.ExecuteNonQuery();
@@ -70,17 +70,31 @@ namespace VSEngine.Integration
 
             SQLiteCommand storeUnit = new SQLiteCommand("insert into navunitresolved (id, address, addresshash, timefound, navtype, scriptref, contenthash, timescrapped, resolvedaddress, image) " + "values ('" + unit.ID.ToString() +
                 "', '" + unit.Address.ToString() + "', '" + unit.AddressHash + "', '" + unit.TimeFound.ToString() + "', '" + unit.Type.ToString() + "', '" + unit.ScriptRef +
-                "', '" + unit.ContentHash + "', '" + unit.TimeScrapped.ToString() + "', '" + unit.ResolvedAddress.ToString() + "', '" + unit.Image + "')", Connection);
+                "', '" + unit.ContentHash + "', '" + unit.TimeScrapped.ToString() + "', '" + unit.ResolvedAddress.ToString() + "', @image)", Connection);
+            storeUnit.Parameters.Add("@image", System.Data.DbType.Binary, 20).Value = unit.Image;
             int rows = storeUnit.ExecuteNonQuery();
 
             foreach(string currentURL in unit.URLSFound)
             {
+                if(string.IsNullOrEmpty(currentURL) || currentURL.Contains("javascript"))
+                {
+                    continue;
+                }
+
+                if (cfg.SingleDomain)
+                {
+                    if (!currentURL.Contains(cfg.RootDoamin))
+                    {
+                        continue;
+                    }
+                }
+
                 string newID = StoreNavUnit(new NavUnit(currentURL));
 
                 if (!string.IsNullOrEmpty(newID))
                 {
                     SQLiteCommand storeLink = new SQLiteCommand("insert into navunitlinks (navunitid, linkedunitid) values ('" + unit.ID.ToString() + "', '" + newID + "')", Connection);
-                    storeLink.ExecuteNonQuery();
+                        storeLink.ExecuteNonQuery();
                 }
             }
             
@@ -88,10 +102,10 @@ namespace VSEngine.Integration
 
         private bool CheckForMatchUnit(string url)
         {
-            SQLiteCommand checkForMatch = new SQLiteCommand("select * from navunit where address = '" + url + "'", Connection);
+            SQLiteCommand checkForMatch = new SQLiteCommand("select * from navunit where address = \"" + url + "\"", Connection);
             bool rowsReturned = checkForMatch.ExecuteReader(System.Data.CommandBehavior.Default).HasRows; //ExecuteNonQuery();
 
-            SQLiteCommand checkForMatchResolved = new SQLiteCommand("select * from navunitresolved where address = '" + url + "'", Connection);
+            SQLiteCommand checkForMatchResolved = new SQLiteCommand("select * from navunitresolved where address = \"" + url + "\"", Connection);
             bool rowsReturnedResolved = checkForMatchResolved.ExecuteReader(System.Data.CommandBehavior.Default).HasRows;
 
             if (rowsReturned || rowsReturnedResolved)
@@ -135,6 +149,65 @@ namespace VSEngine.Integration
             return tempNav;
         }
 
+        public int NavUnitCount()
+        {
+            SQLiteCommand checkForMatch = new SQLiteCommand("select count(address) from navunit", Connection);
+            //checkForMatch.CommandType = System.Data.CommandType.Text;
+            SQLiteDataReader readNav = checkForMatch.ExecuteReader(System.Data.CommandBehavior.Default);
+            readNav.Read();
+            int tempLinkCount = readNav.GetInt32(0);
+
+            SQLiteCommand checkForMatchResolved = new SQLiteCommand("select count(address) from navunitresolved", Connection);
+            SQLiteDataReader readRes = checkForMatchResolved.ExecuteReader(System.Data.CommandBehavior.Default);
+            readRes.Read();
+            int tempResLinkCount = readRes.GetInt32(0);
+
+            tempLinkCount = tempLinkCount + tempResLinkCount;
+
+            return tempLinkCount;
+        }
+
+        public int ResolvedNavUnitCount()
+        {
+            SQLiteCommand checkForMatchResolved = new SQLiteCommand("select count(address) from navunitresolved", Connection);
+            SQLiteDataReader readRes = checkForMatchResolved.ExecuteReader(System.Data.CommandBehavior.Default);
+            readRes.Read();
+            int tempResLinkCount = readRes.GetInt32(0);
+
+            return tempResLinkCount;
+        }
+
+        public Dictionary<string, byte[]> GetRawImages()
+        {
+            List<byte[]> tempRawImages = new List<byte[]>();
+            List<string> tempAddress = new List<string>();
+
+            Dictionary<string, byte[]> finalList = new Dictionary<string, byte[]>();
+
+            SQLiteCommand retriveImages = new SQLiteCommand("select image from navunitresolved", Connection);
+            SQLiteDataReader imageReader = retriveImages.ExecuteReader(System.Data.CommandBehavior.Default);
+
+            while(imageReader.Read())
+            {
+                tempRawImages.Add(GetBytes(imageReader));
+            }
+
+            SQLiteCommand retriveAddress = new SQLiteCommand("select address from navunitresolved", Connection);
+            SQLiteDataReader addressReader = retriveAddress.ExecuteReader(System.Data.CommandBehavior.Default);
+
+            while(addressReader.Read())
+            {
+                tempAddress.Add(addressReader.GetString(0));
+            }
+
+            for(int index = 0; index < tempAddress.Count; index++)
+            {
+                finalList.Add(tempAddress[index], tempRawImages[index]);
+            }
+
+            return finalList;
+        }
+
         //public int NavUnitCount()
         //{
         //    SQLiteCommand countCall = new SQLiteCommand("select * from navunit", Connection);
@@ -145,6 +218,23 @@ namespace VSEngine.Integration
         {
             Connection.Close();
             Connection.Dispose();
+        }
+
+        static byte[] GetBytes(SQLiteDataReader reader)
+        {
+            const int CHUNK_SIZE = 2 * 1024;
+            byte[] buffer = new byte[CHUNK_SIZE];
+            long bytesRead;
+            long fieldOffset = 0;
+            using (MemoryStream stream = new MemoryStream())
+            {
+                while ((bytesRead = reader.GetBytes(0, fieldOffset, buffer, 0, buffer.Length)) > 0)
+                {
+                    stream.Write(buffer, 0, (int)bytesRead);
+                    fieldOffset += bytesRead;
+                }
+                return stream.ToArray();
+            }
         }
     }
 }
