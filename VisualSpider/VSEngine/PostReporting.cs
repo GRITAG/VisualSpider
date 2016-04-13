@@ -1,12 +1,8 @@
 ﻿using ImageProcessor;
 using ImageProcessor.Imaging;
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace VSEngine
 {
@@ -36,7 +32,6 @@ namespace VSEngine
                             .Watermark(text)
                             .Save(Directory.GetCurrentDirectory() + "\\" + imageIndex + ".png");
                     }
-                    //currentImage.Save(imageIndex + ".png");
                 }
 
                 imageIndex++;
