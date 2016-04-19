@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Thought.Terminals;
 using VSEngine.Data;
 using VSEngine.Integration;
 
@@ -20,9 +21,19 @@ namespace VSEngine
         // new up treads based on max thread count and work left
         // collect results from finishhed treads
         // sotre navigation results in db
-        public void Loop(DBAccess db, Config cfg)
+        DBAccess DB;
+        Config CFG;
+        Terminal Console;
+
+        public void Loop(DBAccess db, Config cfg, Terminal console)
         {
-            while(WorkToDo)
+            DB = db;
+            CFG = cfg;
+            Console = console;
+            Console.ClearScreen();
+            WriteScreen();
+
+            while (WorkToDo)
             {
                 List<NavUnit> queuedUnits = db.RetriveUnitSet(cfg.MaxThreads);
                 List<Thread> threads = new List<Thread>();
@@ -44,6 +55,7 @@ namespace VSEngine
                     threads.Add(tempThread);
                     navThreads.Add(tempNavThread);
                 }
+                
 
                 bool threadIsAlive = true;
 
@@ -55,6 +67,7 @@ namespace VSEngine
                     {
                         if (currentThread.IsAlive) threadIsAlive = true;
                     }
+
                 }
 
                 foreach(NavThread currentNavTh in navThreads)
@@ -67,8 +80,20 @@ namespace VSEngine
                     if (db.ResolvedNavUnitCount() > cfg.MaxLinkCount) WorkToDo = false;
                 }
 
+                //WriteScreen();
+
             }
         }
 
+        private void WriteScreen()
+        {
+            Console.WriteLine("Visual Spider");
+
+        }
+
+        private void UpdateScreen()
+        {
+
+        }
     }
 }

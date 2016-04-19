@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Thought.Terminals;
 using VSEngine.Data;
 using VSEngine.Integration;
 
@@ -24,6 +25,7 @@ namespace VSEngine
         Init Initilization = new Init();
         NavLoop NavigationLoop = new NavLoop();
         PostReporting CleanupAndReporting = new PostReporting();
+        Terminal Console = new SystemTerminal();
 
         DBAccess Database = new DBAccess();
 
@@ -42,6 +44,7 @@ namespace VSEngine
 
         public void MainLoop()
         {
+            Console.WriteLine("Handling Configs");
             if (!File.Exists("vs.cfg"))
             {
                 Configs.GenerateConfig();
@@ -51,11 +54,12 @@ namespace VSEngine
             {
                 Configs.LoadConfig();
             }
-
             Initilization.LoadConfigs(Configs);
+            Console.WriteLine("Building Database");
             Initilization.CreateDB(Database);
+            Console.WriteLine("Checking first link");
             Initilization.FirstTimeURLStore(Configs, Database);
-            NavigationLoop.Loop(Database, Configs);
+            NavigationLoop.Loop(Database, Configs, Console);
             CleanupAndReporting.WriteIamges(Database.GetRawImages());
 
         }

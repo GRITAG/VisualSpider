@@ -1,5 +1,6 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Firefox;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +30,10 @@ namespace VSEngine
         public void Navigate()
         {
             //if config is chrome
-            IWebDriver Driver = new ChromeDriver();
+            //ChromeOptions Coptions = new ChromeOptions();
+            //Coptions.AddArgument("--silent");
+            //Coptions.SetLoggingPreference(LogType.Driver, LogLevel.Off);
+            IWebDriver Driver = new FirefoxDriver();
 
             // Navigate to the Starting URL
             Driver.Navigate().GoToUrl(UnitToPreform.Address);
