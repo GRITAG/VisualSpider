@@ -87,7 +87,7 @@ namespace VSEngine
 
         private void WriteScreen()
         {
-            Console.WriteLine("Visual Spider");
+            Console.WriteLine("\t\t\t\t\t\t\tVisual Spider");
 
         }
 
