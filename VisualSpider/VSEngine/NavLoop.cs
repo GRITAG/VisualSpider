@@ -25,7 +25,7 @@ namespace VSEngine
         Config CFG;
         Terminal Console;
 
-        public void Loop(DBAccess db, Config cfg, Terminal console)
+        public void Loop(DBAccess db, Config cfg, Terminal console, EngineState state)
         {
             DB = db;
             CFG = cfg;
@@ -49,6 +49,7 @@ namespace VSEngine
                 {
                     NavThread tempNavThread = new NavThread(currentUnit);
                     tempNavThread.configRef = cfg;
+                    if (state == EngineState.LinkCheck) tempNavThread.CollectLinks = false;
                     Thread tempThread = new Thread(tempNavThread.Navigate);
                     tempThread.Start();
 

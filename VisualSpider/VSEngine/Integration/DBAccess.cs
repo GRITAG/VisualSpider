@@ -44,6 +44,15 @@ namespace VSEngine.Integration
             createNavErrors.ExecuteNonQuery();
         }
 
+        public void ConnectDB(string path)
+        {
+            if (!File.Exists(Directory.GetCurrentDirectory() + "\\VSResults.db"))
+                throw new Exception("Database could not be found");
+
+            Connection = new SQLiteConnection("Data Source=" + Directory.GetCurrentDirectory() + "\\VSResults.db;Version=3;");
+            Connection.Open();
+        }
+
         public string StoreNavUnit(NavUnit unit)
         {
             if(!CheckForMatchUnit(unit.Address.ToString()))
@@ -135,6 +144,39 @@ namespace VSEngine.Integration
                 };
 
                 if(reader.GetString(5) == "URL")
+                {
+                    tempN.Type = NavType.URL;
+                }
+                else
+                {
+                    tempN.Type = NavType.Script;
+                }
+
+                tempNav.Add(tempN);
+            }
+
+            return tempNav;
+        }
+
+        public List<NavUnit> RetriveUnits()
+        {
+            List<NavUnit> tempNav = new List<NavUnit>();
+
+            SQLiteCommand nextUnitSet = new SQLiteCommand("select * from navunit", Connection);
+            SQLiteDataReader reader = nextUnitSet.ExecuteReader(System.Data.CommandBehavior.Default);
+
+            while (reader.Read())
+            {
+                NavUnit tempN = new NavUnit
+                {
+                    ID = Guid.Parse(reader.GetString(1)),
+                    Address = new Uri(reader.GetString(2)),
+                    AddressHash = reader.GetString(3),
+                    TimeFound = DateTime.Parse(reader.GetString(4)),
+                    ScriptRef = reader.GetString(6)
+                };
+
+                if (reader.GetString(5) == "URL")
                 {
                     tempN.Type = NavType.URL;
                 }

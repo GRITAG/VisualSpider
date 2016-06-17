@@ -15,6 +15,8 @@ namespace VisualSpider
         {
             Console.Title = "Visual Spider";
 
+            args = new string[2] { "/l", "links.txt" };
+
             if (args.Length < 1)
             {
                 GOGO = new Engine(EngineState.Main);
@@ -26,6 +28,11 @@ namespace VisualSpider
                     if(currentArg.ToLower().Contains("/g"))
                     {
                         GOGO = new Engine(EngineState.GenerateConfig);
+                    }
+
+                    if(currentArg.ToLower().Contains("/l"))
+                    {
+                        GOGO = new Engine(EngineState.LinkCheck, args[1]);
                     }
 
                     if(currentArg.ToLower().Contains("/x"))

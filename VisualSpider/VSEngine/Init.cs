@@ -2,6 +2,7 @@
 using OpenQA.Selenium.Chrome;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -19,6 +20,7 @@ namespace VSEngine
     {        
         public void LoadConfigs(Config cfg) { }
         public void CreateDB(DBAccess db) { db.CreateDB(); }
+
         public void FirstTimeURLStore(Config cfg, DBAccess db)
         {
             if (cfg.SingleDomain)
@@ -42,6 +44,29 @@ namespace VSEngine
             db.StoreResolvedNavUnit(thread.UnitToPassBack, cfg);
 
             return;
+        }
+
+        public void LoadLinks(string path, DBAccess db)
+        {
+            if (path.Contains(".db"))
+            {
+                DBAccess inputDB = new DBAccess();
+                inputDB.ConnectDB(path);
+
+                foreach(NavUnit currentUnit in inputDB.RetriveUnits())
+                {
+                    db.StoreNavUnit(currentUnit);
+                }
+            }
+
+            if (path.Contains(".txt"))
+            {
+                foreach(string link in File.ReadLines(path))
+                {
+                    db.StoreNavUnit(new NavUnit(link));
+                }
+            }
+
         }
     }
 }

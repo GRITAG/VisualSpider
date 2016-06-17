@@ -21,10 +21,12 @@ namespace VSEngine
         NavUnit UnitToPreform { get; set; }
         public ResolvedNavUnit UnitToPassBack { get; set; }
         public Config configRef { get; set; }
+        public bool CollectLinks { get; set; }
 
         public NavThread(NavUnit unit)
         {
             UnitToPreform = unit;
+            CollectLinks = true;
         }
 
         public void Navigate()
@@ -37,9 +39,6 @@ namespace VSEngine
 
             // Navigate to the Starting URL
             Driver.Navigate().GoToUrl(UnitToPreform.Address);
-
-            // Gather all information needed from Webdriver
-            List<IWebElement> urls = Driver.FindElements(By.CssSelector("a[href]")).ToList();
             Uri resolvedURL = new Uri(Driver.Url);
             byte[] screenShoot = ((ITakesScreenshot)Driver).GetScreenshot().AsByteArray;
             string contentMD5 = NavUnit.CalculateMD5Hash(Driver.PageSource);
@@ -47,19 +46,26 @@ namespace VSEngine
             // generate a new resolved unit
             ResolvedNavUnit resolvedUnit = new ResolvedNavUnit(UnitToPreform, resolvedURL, screenShoot, contentMD5);
 
-            // fill the resolved units url results
-            foreach (IWebElement currentEle in urls)
+            // gather links on the page 
+            if (CollectLinks)
             {
-                try
+                List<IWebElement> urls = Driver.FindElements(By.CssSelector("a[href]")).ToList();
+
+
+                // fill the resolved units url results
+                foreach (IWebElement currentEle in urls)
                 {
-                    if (!string.IsNullOrEmpty(currentEle.GetAttribute("href")))
+                    try
                     {
-                        resolvedUnit.URLSFound.Add(currentEle.GetAttribute("href"));
+                        if (!string.IsNullOrEmpty(currentEle.GetAttribute("href")))
+                        {
+                            resolvedUnit.URLSFound.Add(currentEle.GetAttribute("href"));
+                        }
                     }
-                }
-                catch(Exception e)
-                {
-                    resolvedUnit.NavigationErrors.Add("Webdriver error on " + resolvedUnit.Address + ": " + e.ToString());
+                    catch (Exception e)
+                    {
+                        resolvedUnit.NavigationErrors.Add("Webdriver error on " + resolvedUnit.Address + ": " + e.ToString());
+                    }
                 }
             }
 
