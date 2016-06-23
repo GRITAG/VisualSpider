@@ -33,6 +33,8 @@ namespace VSEngine
             Console.ClearScreen();
             WriteScreen();
 
+            int linkcount = 0;
+
             while (WorkToDo)
             {
                 List<NavUnit> queuedUnits = db.RetriveUnitSet(cfg.MaxThreads);
@@ -62,6 +64,8 @@ namespace VSEngine
 
                 while(threadIsAlive)
                 {
+                    Thread.Sleep(1000);
+
                     threadIsAlive = false;
 
                     foreach(Thread currentThread in threads)
@@ -69,11 +73,20 @@ namespace VSEngine
                         if (currentThread.IsAlive) threadIsAlive = true;
                     }
 
+                    if (state == EngineState.LinkCheck)
+                    {
+                        UpdateScreen(queuedUnits, threads, linkcount, "Link Check");
+                    }
+                    else
+                    {
+                        UpdateScreen(queuedUnits, threads, linkcount, "Crawl");
+                    }
                 }
 
                 foreach(NavThread currentNavTh in navThreads)
                 {
                     db.StoreResolvedNavUnit(currentNavTh.UnitToPassBack, cfg);
+                    linkcount++;
                 }
 
                 if (cfg.MaxLinkCount > 0)
@@ -88,13 +101,20 @@ namespace VSEngine
 
         private void WriteScreen()
         {
-            Console.WriteLine("\t\t\t\t\t\t\tVisual Spider");
+            Console.ClearScreen();
+            Console.WriteLine("\t\t\t\t\t\tVisual Spider");
 
         }
 
-        private void UpdateScreen()
+        private void UpdateScreen(List<NavUnit> units, List<Thread> threds, int linkCount, string mode)
         {
-
+            WriteScreen();
+            Console.WriteLine("\t\tMode: " + mode);
+            Console.WriteLine("\t\tThread Count: " + threds.Count + "\t\tLink Count: " + linkCount);
+            foreach (NavUnit currentUnit in units)
+            {
+                Console.WriteLine("\t\t" + currentUnit.Address);
+            }
         }
     }
 }
