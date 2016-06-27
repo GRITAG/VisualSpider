@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Thought.Terminals;
 using VSEngine.Data;
 using VSEngine.Integration;
@@ -15,6 +12,11 @@ namespace VSEngine
     /// </summary>
     public class NavLoop
     {
+        ConsoleColor LabelColor = ConsoleColor.Magenta;
+        ConsoleColor FieldColor = ConsoleColor.White;
+        ConsoleColor TitleColor = ConsoleColor.Green;
+        ConsoleColor LinkColor = ConsoleColor.DarkGray;
+
         bool WorkToDo = true;
         // check if there is work to do
         // queue up URls / Scripts to run
@@ -102,18 +104,32 @@ namespace VSEngine
         private void WriteScreen()
         {
             Console.ClearScreen();
-            Console.WriteLine("\t\t\t\t\t\tVisual Spider");
+            Console.SetForeground(TitleColor);
+            Console.WriteLine("\n\t\t\t\t\t\tVisual Spider");
 
         }
 
         private void UpdateScreen(List<NavUnit> units, List<Thread> threds, int linkCount, string mode)
         {
             WriteScreen();
-            Console.WriteLine("\t\tMode: " + mode);
-            Console.WriteLine("\t\tThread Count: " + threds.Count + "\t\tLink Count: " + linkCount);
+            Console.SetForeground(LabelColor);
+            Console.Write("\t\tMode: ");
+            Console.SetForeground(FieldColor);
+            Console.Write(mode + "\n");
+
+            Console.SetForeground(LabelColor);
+            Console.Write("\t\tThread Count: ");
+            Console.SetForeground(FieldColor);
+            Console.Write(threds.Count);
+            Console.SetForeground(LabelColor);
+            Console.Write("\t\tLink Count: ");
+            Console.SetForeground(FieldColor);
+            Console.Write(linkCount + "\n\n");
+
+            Console.SetForeground(LinkColor);
             foreach (NavUnit currentUnit in units)
             {
-                Console.WriteLine("\t\t" + currentUnit.Address);
+                Console.WriteLine(currentUnit.Address.ToString());
             }
         }
     }

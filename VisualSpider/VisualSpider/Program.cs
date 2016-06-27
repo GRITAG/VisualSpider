@@ -15,7 +15,7 @@ namespace VisualSpider
         {
             Console.Title = "Visual Spider";
 
-            args = new string[2] { "/l", "links.txt" };
+            //args = new string[2] { "/l", "links.txt" };
 
             if (args.Length < 1)
             {
