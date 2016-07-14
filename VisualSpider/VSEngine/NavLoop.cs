@@ -8,7 +8,7 @@ using VSEngine.Integration;
 namespace VSEngine
 {
     /// <summary>
-    /// Cordiates threads and processes resutls
+    /// Coordinates threads and processes results
     /// </summary>
     public class NavLoop
     {
@@ -16,13 +16,14 @@ namespace VSEngine
         ConsoleColor FieldColor = ConsoleColor.White;
         ConsoleColor TitleColor = ConsoleColor.Green;
         ConsoleColor LinkColor = ConsoleColor.DarkGray;
+        ConsoleColor DeviderColor = ConsoleColor.Cyan;
 
         bool WorkToDo = true;
         // check if there is work to do
         // queue up URls / Scripts to run
         // new up treads based on max thread count and work left
-        // collect results from finishhed treads
-        // sotre navigation results in db
+        // collect results from finished treads
+        // store navigation results in db
         DBAccess DB;
         Config CFG;
         Terminal Console;
@@ -105,20 +106,25 @@ namespace VSEngine
         {
             Console.ClearScreen();
             Console.SetForeground(TitleColor);
-            Console.WriteLine("\n\t\t\t\t\t\tVisual Spider");
-
+            Console.WritePadded("Visual Spider", System.Console.WindowWidth, JustifyText.Center);
+            Console.SetForeground(DeviderColor);
+            for(int i=0; i < System.Console.WindowWidth; i++)
+            {
+                Console.Write('=');
+            }
+            Console.Write("\n");
         }
 
         private void UpdateScreen(List<NavUnit> units, List<Thread> threds, int linkCount, string mode)
         {
             WriteScreen();
             Console.SetForeground(LabelColor);
-            Console.Write("\t\tMode: ");
+            Console.Write("\tMode: ");
             Console.SetForeground(FieldColor);
             Console.Write(mode + "\n");
 
             Console.SetForeground(LabelColor);
-            Console.Write("\t\tThread Count: ");
+            Console.Write("\tThread Count: ");
             Console.SetForeground(FieldColor);
             Console.Write(threds.Count);
             Console.SetForeground(LabelColor);
@@ -129,7 +135,7 @@ namespace VSEngine
             Console.SetForeground(LinkColor);
             foreach (NavUnit currentUnit in units)
             {
-                Console.WriteLine(currentUnit.Address.ToString());
+                Console.WriteLine("\t" + currentUnit.Address.ToString());
             }
         }
     }
