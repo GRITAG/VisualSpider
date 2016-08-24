@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using Thought.Terminals;
 using VSEngine.Data;
 using VSEngine.Integration;
 
@@ -25,10 +24,8 @@ namespace VSEngine
         // collect results from finished treads
         // store navigation results in db
 
-        public void Loop(DBAccess db, Config cfg, Terminal console, EngineState state)
+        public void Loop(DBAccess db, Config cfg, EngineState state)
         {
-            console.ClearScreen();
-            WriteScreen(console);
 
             int linkcount = 0;
 
@@ -71,11 +68,21 @@ namespace VSEngine
 
                     if (state == EngineState.LinkCheck)
                     {
-                        UpdateScreen(queuedUnits, threads, linkcount, "Link Check", console);
+                        List<string> messageUrls = new List<string>();
+                        foreach(NavUnit currentUnit in queuedUnits)
+                        {
+                            messageUrls.Add(currentUnit.Address.ToString());
+                        }
+                         Engine.WrtieStatus(messageUrls.ToArray(), linkcount, threads.Count, "Visual Link Check", "Link Check");
                     }
                     else
                     {
-                        UpdateScreen(queuedUnits, threads, linkcount, "Crawl", console);
+                        List<string> messageUrls = new List<string>();
+                        foreach (NavUnit currentUnit in queuedUnits)
+                        {
+                            messageUrls.Add(currentUnit.Address.ToString());
+                        }
+                        Engine.WrtieStatus(messageUrls.ToArray(), linkcount, threads.Count, "Visual Crawl", "Crawl");
                     }
                 }
 
@@ -92,45 +99,8 @@ namespace VSEngine
                     if (db.ResolvedNavUnitCount() > cfg.MaxLinkCount) WorkToDo = false;
                 }
             }
-
-            WriteScreen(console);
         }
 
-        private void WriteScreen(Terminal console)
-        {
-            console.ClearScreen();
-            console.SetForeground(TitleColor);
-            console.WritePadded("Visual Spider", System.Console.WindowWidth, JustifyText.Center);
-            console.SetForeground(DeviderColor);
-            for(int i=0; i < System.Console.WindowWidth; i++)
-            {
-                console.Write('=');
-            }
-            console.Write("\n");
-        }
-
-        private void UpdateScreen(List<NavUnit> units, List<Thread> threds, int linkCount, string mode, Terminal console)
-        {
-            WriteScreen(console);
-            console.SetForeground(LabelColor);
-            console.Write("\tMode: ");
-            console.SetForeground(FieldColor);
-            console.Write(mode + "\n");
-
-            console.SetForeground(LabelColor);
-            console.Write("\tThread Count: ");
-            console.SetForeground(FieldColor);
-            console.Write(threds.Count);
-            console.SetForeground(LabelColor);
-            console.Write("\t\tLink Count: ");
-            console.SetForeground(FieldColor);
-            console.Write(linkCount + "\n\n");
-
-            console.SetForeground(LinkColor);
-            foreach (NavUnit currentUnit in units)
-            {
-                console.WriteLine("\t" + currentUnit.Address.ToString());
-            }
-        }
+        
     }
 }

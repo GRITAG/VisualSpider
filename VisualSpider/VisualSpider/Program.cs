@@ -17,6 +17,8 @@ namespace VisualSpider
 
             //args = new string[2] { "/l", "links.txt" };
 
+            Engine.UIEvent += HandleUI;
+
             if (args.Length < 1)
             {
                 GOGO = new Engine(EngineState.Main);
@@ -45,5 +47,48 @@ namespace VisualSpider
             Environment.Exit(0);
             //Console.ReadKey();
         }
+
+        private static void HandleUI(object sender, UIData e)
+        {
+            if(e.Display == DisplayType.Log)
+            {
+                foreach(string currentString in e.Messages)
+                {
+                    Console.WriteLine(currentString);
+                }
+            }
+            else
+            {
+                Console.Clear();
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Visual Spider");
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                for (int i = 0; i < System.Console.WindowWidth; i++)
+                {
+                    Console.Write('=');
+                }
+                Console.Write("\n");
+                Console.ForegroundColor =ConsoleColor.Magenta;
+                Console.Write("\tMode: ");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write(e.Mode + "\n");
+
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.Write("\tThread Count: ");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write(e.ThreadCount);
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.Write("\t\tLink Count: ");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write(e.LinkCount + "\n\n");
+
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                foreach (string currentUnit in e.Messages)
+                {
+                    Console.WriteLine("\t" + currentUnit);
+                }
+            }
+        }
+    
     }
 }
