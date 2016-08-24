@@ -10,6 +10,7 @@ namespace VSEngine.Data
         public bool SingleDomain { get; set; }
         public string RootDoamin { get; set; }
         public int MaxLinkCount { get; set; }
+        public string Browser { get; set; }
 
         public void GenerateConfig ()
         {
@@ -17,6 +18,7 @@ namespace VSEngine.Data
             MaxThreads = 4;
             SingleDomain = true;
             MaxLinkCount = 10;
+            Browser = "Chrome";
         }
 
         public void LoadConfig()
@@ -34,6 +36,7 @@ namespace VSEngine.Data
             SingleDomain = temp.SingleDomain;
             RootDoamin = temp.RootDoamin;
             MaxLinkCount = temp.MaxLinkCount;
+            Browser = temp.Browser;
         }
 
         public void SaveConfig()

@@ -20,23 +20,42 @@ namespace VSEngine
         // take screen shot
         NavUnit UnitToPreform { get; set; }
         public ResolvedNavUnit UnitToPassBack { get; set; }
-        public Config configRef { get; set; }
+        Config ConfigRef { get; set; }
         public bool CollectLinks { get; set; }
 
-        public NavThread(NavUnit unit)
+        public NavThread(NavUnit unit, Config configRef)
         {
             UnitToPreform = unit;
             CollectLinks = true;
+            ConfigRef = configRef;
         }
 
         public void Navigate()
         {
-            //if config is chrome
-            //ChromeOptions Coptions = new ChromeOptions();
-            //Coptions.AddArgument("--silent");
-            //Coptions.SetLoggingPreference(LogType.Driver, LogLevel.Off);
-            IWebDriver Driver = new FirefoxDriver();
+            // select the browser according to the config
+            IWebDriver Driver = null;
 
+            try
+            {
+                switch (ConfigRef.Browser.ToLower())
+                {
+                    case "chrome":
+                        ChromeOptions Coptions = new ChromeOptions();
+                        Coptions.AddArgument("--silent");
+                        Coptions.SetLoggingPreference(LogType.Driver, LogLevel.Off);
+                        Driver = new ChromeDriver(Coptions);
+                        break;
+                    case "firefox":
+                        Driver = new FirefoxDriver();
+                        break;
+                }
+            }
+            catch(Exception e)
+            {
+                throw new Exception("Error loading the browser, please check your config.", e);
+
+            }
+            
             // Navigate to the Starting URL
             Driver.Navigate().GoToUrl(UnitToPreform.Address);
             Uri resolvedURL = new Uri(Driver.Url);

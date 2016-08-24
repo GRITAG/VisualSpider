@@ -33,7 +33,7 @@ namespace VSEngine
             NavUnit firstNav = new NavUnit(cfg.StartURL);
             db.StoreNavUnit(firstNav);
 
-            NavThread thread = new NavThread(firstNav);
+            NavThread thread = new NavThread(firstNav, cfg);
             Thread navThread = new Thread(thread.Navigate);
             navThread.Start();
             while(navThread.IsAlive)

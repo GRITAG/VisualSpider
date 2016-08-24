@@ -42,6 +42,7 @@ namespace VisualSpider
                 }
             }
 
+            Environment.Exit(0);
             //Console.ReadKey();
         }
     }

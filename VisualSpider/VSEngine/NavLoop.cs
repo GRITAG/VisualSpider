@@ -10,7 +10,7 @@ namespace VSEngine
     /// <summary>
     /// Coordinates threads and processes results
     /// </summary>
-    public class NavLoop
+    public class NavLoop 
     {
         ConsoleColor LabelColor = ConsoleColor.Magenta;
         ConsoleColor FieldColor = ConsoleColor.White;
@@ -24,17 +24,11 @@ namespace VSEngine
         // new up treads based on max thread count and work left
         // collect results from finished treads
         // store navigation results in db
-        DBAccess DB;
-        Config CFG;
-        Terminal Console;
 
         public void Loop(DBAccess db, Config cfg, Terminal console, EngineState state)
         {
-            DB = db;
-            CFG = cfg;
-            Console = console;
-            Console.ClearScreen();
-            WriteScreen();
+            console.ClearScreen();
+            WriteScreen(console);
 
             int linkcount = 0;
 
@@ -52,8 +46,7 @@ namespace VSEngine
 
                 foreach(NavUnit currentUnit in queuedUnits)
                 {
-                    NavThread tempNavThread = new NavThread(currentUnit);
-                    tempNavThread.configRef = cfg;
+                    NavThread tempNavThread = new NavThread(currentUnit, cfg);
                     if (state == EngineState.LinkCheck) tempNavThread.CollectLinks = false;
                     Thread tempThread = new Thread(tempNavThread.Navigate);
                     tempThread.Start();
@@ -64,9 +57,9 @@ namespace VSEngine
                 
 
                 bool threadIsAlive = true;
-
-                while(threadIsAlive)
+                while (threadIsAlive)
                 {
+
                     Thread.Sleep(1000);
 
                     threadIsAlive = false;
@@ -78,64 +71,65 @@ namespace VSEngine
 
                     if (state == EngineState.LinkCheck)
                     {
-                        UpdateScreen(queuedUnits, threads, linkcount, "Link Check");
+                        UpdateScreen(queuedUnits, threads, linkcount, "Link Check", console);
                     }
                     else
                     {
-                        UpdateScreen(queuedUnits, threads, linkcount, "Crawl");
+                        UpdateScreen(queuedUnits, threads, linkcount, "Crawl", console);
                     }
                 }
 
-                foreach(NavThread currentNavTh in navThreads)
+                DateTime batchTiming = DateTime.Now;
+                foreach (NavThread currentNavTh in navThreads)
                 {
                     db.StoreResolvedNavUnit(currentNavTh.UnitToPassBack, cfg);
                     linkcount++;
                 }
+                TimeSpan totalTime = DateTime.Now - batchTiming;
 
                 if (cfg.MaxLinkCount > 0)
                 {
                     if (db.ResolvedNavUnitCount() > cfg.MaxLinkCount) WorkToDo = false;
                 }
-
-                //WriteScreen();
-
             }
+
+            WriteScreen(console);
         }
 
-        private void WriteScreen()
+        private void WriteScreen(Terminal console)
         {
-            Console.ClearScreen();
-            Console.SetForeground(TitleColor);
-            Console.WritePadded("Visual Spider", System.Console.WindowWidth, JustifyText.Center);
-            Console.SetForeground(DeviderColor);
+            console.ClearScreen();
+            console.SetForeground(TitleColor);
+            console.WritePadded("Visual Spider", System.Console.WindowWidth, JustifyText.Center);
+            console.SetForeground(DeviderColor);
             for(int i=0; i < System.Console.WindowWidth; i++)
             {
-                Console.Write('=');
+                console.Write('=');
             }
-            Console.Write("\n");
+            console.Write("\n");
         }
 
-        private void UpdateScreen(List<NavUnit> units, List<Thread> threds, int linkCount, string mode)
+        private void UpdateScreen(List<NavUnit> units, List<Thread> threds, int linkCount, string mode, Terminal console)
         {
-            WriteScreen();
-            Console.SetForeground(LabelColor);
-            Console.Write("\tMode: ");
-            Console.SetForeground(FieldColor);
-            Console.Write(mode + "\n");
+            WriteScreen(console);
+            console.SetForeground(LabelColor);
+            console.Write("\tMode: ");
+            console.SetForeground(FieldColor);
+            console.Write(mode + "\n");
 
-            Console.SetForeground(LabelColor);
-            Console.Write("\tThread Count: ");
-            Console.SetForeground(FieldColor);
-            Console.Write(threds.Count);
-            Console.SetForeground(LabelColor);
-            Console.Write("\t\tLink Count: ");
-            Console.SetForeground(FieldColor);
-            Console.Write(linkCount + "\n\n");
+            console.SetForeground(LabelColor);
+            console.Write("\tThread Count: ");
+            console.SetForeground(FieldColor);
+            console.Write(threds.Count);
+            console.SetForeground(LabelColor);
+            console.Write("\t\tLink Count: ");
+            console.SetForeground(FieldColor);
+            console.Write(linkCount + "\n\n");
 
-            Console.SetForeground(LinkColor);
+            console.SetForeground(LinkColor);
             foreach (NavUnit currentUnit in units)
             {
-                Console.WriteLine("\t" + currentUnit.Address.ToString());
+                console.WriteLine("\t" + currentUnit.Address.ToString());
             }
         }
     }

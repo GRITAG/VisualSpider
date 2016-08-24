@@ -80,9 +80,12 @@ namespace VSEngine
                 Initilization.FirstTimeURLStore(Configs, Database);
             }
 
+            Console.WriteLine("Entering Nav Loop");
             NavigationLoop.Loop(Database, Configs, Console, State);
+            Console.ClearScreen();
+            Console.WriteLine("Compiling Reporting and Cleaning up");
             CleanupAndReporting.WriteIamges(Database.GetRawImages());
-
+            Console.Close();            
         }
 
         public Engine SoucreDBPath(string path)
