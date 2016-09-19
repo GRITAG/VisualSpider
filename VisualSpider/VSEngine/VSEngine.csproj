@@ -92,6 +92,7 @@
     <Compile Include="Engine.cs" />
     <Compile Include="Init.cs" />
     <Compile Include="Integration\DBAccess.cs" />
+    <Compile Include="Integration\SQLiteDBAccess.cs" />
     <Compile Include="NavLoop.cs" />
     <Compile Include="NavThread.cs" />
     <Compile Include="PostReporting.cs" />

@@ -26,7 +26,7 @@ namespace VSEngine
         string SourcePath { get; set; }
         EngineState State { get; set; }
 
-        DBAccess Database = new DBAccess();
+        DBAccess Database = new SQLiteDBAccess();
 
         public Engine(EngineState engineState, string path = "")
         {
@@ -63,7 +63,6 @@ namespace VSEngine
 
             Initilization.LoadConfigs(Configs);
             WriteLog("Building Database");
-            Initilization.CreateDB(Database);
 
             if (State == EngineState.LinkCheck)
             {

@@ -19,7 +19,6 @@ namespace VSEngine
     public class Init
     {        
         public void LoadConfigs(Config cfg) { }
-        public void CreateDB(DBAccess db) { db.CreateDB(); }
 
         public void FirstTimeURLStore(Config cfg, DBAccess db)
         {
@@ -50,7 +49,7 @@ namespace VSEngine
         {
             if (path.Contains(".db"))
             {
-                DBAccess inputDB = new DBAccess();
+                DBAccess inputDB = new SQLiteDBAccess();
                 inputDB.ConnectDB(path);
 
                 foreach(NavUnit currentUnit in inputDB.RetriveUnits())
